@@ -16,20 +16,21 @@ import {
   Spin,
   Tooltip,
   TreeSelect,
-  Upload
+  Upload,
 } from 'antd';
 import {DeviceProduct} from '../../data';
 import {FormItemConfig} from '@/utils/common';
 import apis from '@/services';
-import styles from "@/pages/device/product/save/add/index.less";
-import productImg from "@/pages/device/product/img/product.png";
-import {UploadProps} from "antd/lib/upload";
-import {getAccessToken} from "@/utils/authority";
-import {UploadOutlined} from "@ant-design/icons/lib";
-import {PageHeaderWrapper} from "@ant-design/pro-layout";
+import styles from '@/pages/device/product/save/add/index.less';
+import productImg from '@/pages/device/product/img/product.png';
+import {UploadProps} from 'antd/lib/upload';
+import {getAccessToken} from '@/utils/authority';
+import {UploadOutlined} from '@ant-design/icons/lib';
+import {PageHeaderWrapper} from '@ant-design/pro-layout';
 import Classified from '@/pages/device/product/save/add/classified';
-import {ProtocolItem} from "@/pages/device/protocol/data";
-import {router} from "umi";
+import {ProtocolItem} from '@/pages/device/protocol/data';
+import {router} from 'umi';
+import encodeQueryParam from "@/utils/encodeParam";
 
 interface Props extends FormComponentProps {
   data?: Partial<DeviceProduct>;
@@ -57,7 +58,7 @@ const Save: React.FC<Props> = props => {
     configForm: [],
     classified: [],
     classifiedData: {},
-    defaultMetadata: '{"events":[],"properties":[],"functions":[],"tags":[]}'
+    defaultMetadata: '{"events":[],"properties":[],"functions":[],"tags":[]}',
   };
   const systemVersion = localStorage.getItem('system-version');
 
@@ -97,7 +98,7 @@ const Save: React.FC<Props> = props => {
       .getDefaultModel(id, transport)
       .then(res => {
         if (res.status === 200) {
-          if (res.result === "{}") {
+          if (res.result === '{}') {
             setDefaultMetadata('{"events":[],"properties":[],"functions":[],"tags":[]}');
           } else {
             setDefaultMetadata(res.result);
@@ -121,7 +122,8 @@ const Save: React.FC<Props> = props => {
       .catch(() => {
       });
 
-    apis.deviceProdcut.deviceCategoryTree()
+    apis.deviceProdcut
+      .deviceCategoryTree(encodeQueryParam({paging: false, sorts: {field: 'id', order: 'desc'}}))
       .then((response: any) => {
         if (response.status === 200) {
           setClassified(response.result);
@@ -130,24 +132,26 @@ const Save: React.FC<Props> = props => {
       .catch(() => {
       });
 
-    apis.deviceProdcut.queryOrganization()
+    apis.deviceProdcut
+      .queryOrganization()
       .then((res: any) => {
         if (res.status === 200) {
           let orgList: any = [];
           res.result.map((item: any) => {
-            orgList.push({id: item.id, pId: item.parentId, value: item.id, title: item.name})
+            orgList.push({id: item.id, pId: item.parentId, value: item.id, title: item.name});
           });
           setOrganizationList(orgList);
         }
-      }).catch(() => {
-    });
+      })
+      .catch(() => {
+      });
 
     // if (systemVersion === 'pro') {
-      apis.deviceProdcut.storagePolicy().then(res => {
-        if (res.status === 200) {
-          setStoragePolicy(res.result);
-        }
-      });
+    apis.deviceProdcut.storagePolicy().then(res => {
+      if (res.status === 200) {
+        setStoragePolicy(res.result);
+      }
+    });
     // }
     if (props.data && props.data.messageProtocol) {
       onMessageProtocolChange(props.data.messageProtocol);
@@ -168,15 +172,13 @@ const Save: React.FC<Props> = props => {
         rules: [
           {required: true, message: '请输入产品ID'},
           {max: 64, message: '产品ID不超过64个字符'},
-          {pattern: new RegExp(/^[0-9a-zA-Z_\-]+$/, "g"), message: '产品ID只能由数字、字母、下划线、中划线组成'}
+          {
+            pattern: new RegExp(/^[0-9a-zA-Z_\-]+$/, 'g'),
+            message: '产品ID只能由数字、字母、下划线、中划线组成',
+          },
         ],
       },
-      component: (
-        <Input
-          placeholder="请输入产品ID "
-          disabled={!!props.data?.id}
-        />
-      ),
+      component: <Input placeholder="请输入产品ID " disabled={!!props.data?.id}/>,
     },
     {
       label: '产品名称',
@@ -184,7 +186,7 @@ const Save: React.FC<Props> = props => {
       options: {
         rules: [
           {required: true, message: '请输入产品名称'},
-          {max: 200, message: '产品名称不超过200个字符'}
+          {max: 200, message: '产品名称不超过200个字符'},
         ],
         initialValue: props.data?.name,
       },
@@ -208,11 +210,12 @@ const Save: React.FC<Props> = props => {
         md: {span: 12},
         sm: {span: 24},
       },
-      component:
+      component: (
         <Cascader
           fieldNames={{label: 'name', value: 'id', children: 'children'}}
-          options={classified} popupVisible={false}
-          onChange={(value) => {
+          options={classified}
+          popupVisible={false}
+          onChange={value => {
             if (value.length === 0) {
               setClassifiedData({});
             }
@@ -220,7 +223,9 @@ const Save: React.FC<Props> = props => {
           onClick={() => {
             setClassifiedVisible(true);
           }}
-          placeholder="点击选择品类"/>,
+          placeholder="点击选择品类"
+        />
+      ),
     },
     {
       label: '所属机构',
@@ -234,11 +239,17 @@ const Save: React.FC<Props> = props => {
         md: {span: 24},
         sm: {span: 24},
       },
-      component: <TreeSelect
-        allowClear treeDataSimpleMode showSearch
-        placeholder="所属机构" treeData={organizationList}
-        treeNodeFilterProp='title' searchPlaceholder='根据机构名称模糊查询'
-      />,
+      component: (
+        <TreeSelect
+          allowClear
+          treeDataSimpleMode
+          showSearch
+          placeholder="所属机构"
+          treeData={organizationList}
+          treeNodeFilterProp="title"
+          searchPlaceholder="根据机构名称模糊查询"
+        />
+      ),
     },
     {
       label: '消息协议',
@@ -282,11 +293,19 @@ const Save: React.FC<Props> = props => {
         sm: {span: 24},
       },
       component: (
-        <Select placeholder="请选择" onChange={(value: string) => {
-          if (value !== "" && value !== undefined && props.form.getFieldsValue().messageProtocol !== "" && props.form.getFieldsValue().messageProtocol !== undefined) {
-            getDefaultModel(props.form.getFieldsValue().messageProtocol, value);
-          }
-        }}>
+        <Select
+          placeholder="请选择"
+          onChange={(value: string) => {
+            if (
+              value !== '' &&
+              value !== undefined &&
+              props.form.getFieldsValue().messageProtocol !== '' &&
+              props.form.getFieldsValue().messageProtocol !== undefined
+            ) {
+              getDefaultModel(props.form.getFieldsValue().messageProtocol, value);
+            }
+          }}
+        >
           {protocolTransports.map(e => (
             <Select.Option value={e.id} key={e.id}>
               {e.name}
@@ -297,8 +316,15 @@ const Save: React.FC<Props> = props => {
     },
     {
       label: (
-        <span>存储策略&nbsp;
-          <Tooltip title={checkStorage.description ? checkStorage.description : '使用指定的存储策略来存储设备数据'}>
+        <span>
+          存储策略&nbsp;
+          <Tooltip
+            title={
+              checkStorage.description
+                ? checkStorage.description
+                : '使用指定的存储策略来存储设备数据'
+            }
+          >
             <Icon type="question-circle-o"/>
           </Tooltip>
         </span>
@@ -314,7 +340,8 @@ const Save: React.FC<Props> = props => {
       component: (
         <Select
           onChange={e => setCheckStorage(storagePolicy.find(i => i.id === e))}
-          placeholder="请选择">
+          placeholder="请选择"
+        >
           {storagePolicy.map(e => (
             <Select.Option value={e.id} key={e.id}>
               {e.name}
@@ -374,15 +401,16 @@ const Save: React.FC<Props> = props => {
       const protocol: Partial<ProtocolItem> =
         protocolSupports.find(i => i.id === fileValue.messageProtocol) || {};
 
-      apis.deviceProdcut.saveDeviceProduct({
-        state: 0,
-        ...fileValue,
-        photoUrl,
-        metadata: defaultMetadata,//'{"events":[],"properties":[],"functions":[],"tags":[]}',
-        protocolName: protocol.name,
-        classifiedId: classifiedData.id,
-        classifiedName: classifiedData.name
-      })
+      apis.deviceProdcut
+        .saveDeviceProduct({
+          state: 0,
+          ...fileValue,
+          photoUrl,
+          metadata: defaultMetadata, //'{"events":[],"properties":[],"functions":[],"tags":[]}',
+          protocolName: protocol.name,
+          classifiedId: classifiedData.id,
+          classifiedName: classifiedData.name,
+        })
         .then((response: any) => {
           if (response.status === 200) {
             message.success('保存成功');
@@ -390,7 +418,7 @@ const Save: React.FC<Props> = props => {
           }
         })
         .catch(() => {
-        })
+        });
     });
   };
 
@@ -417,21 +445,26 @@ const Save: React.FC<Props> = props => {
               <div className={styles.left}>
                 <Form labelCol={{span: 5}} wrapperCol={{span: 16}}>
                   <Row gutter={16}>
-                    {(systemVersion === 'pro' ? basicForm : basicForm.filter(i => i.key !== 'storePolicy')).map(item => (
+                    {basicForm.map(item => (
                       <Col key={item.key}>
                         <Form.Item label={item.label}>
                           {getFieldDecorator(item.key, item.options)(item.component)}
                         </Form.Item>
                       </Col>
                     ))}
+                    {/* {(systemVersion === 'pro' ? basicForm : basicForm.filter(i => i.key !== 'storePolicy')).map(item => (
+                      <Col key={item.key}>
+                        <Form.Item label={item.label}>
+                          {getFieldDecorator(item.key, item.options)(item.component)}
+                        </Form.Item>
+                      </Col>
+                    ))} */}
                   </Row>
                 </Form>
               </div>
               <div className={styles.right}>
                 <>
-                  <div className={styles.avatar_title}>
-                    图标
-                  </div>
+                  <div className={styles.avatar_title}>图标</div>
                   <div className={styles.avatar}>
                     <Avatar size={144} src={photoUrl || props.data?.photoUrl || productImg}/>
                   </div>
@@ -480,14 +513,20 @@ const Save: React.FC<Props> = props => {
           </Spin>
         </div>
       </Card>
-      {classifiedVisible && <Classified choice={(item: any) => {
-        const categoryId = item.categoryId;
-        setFieldsValue({'classifiedId': categoryId});
-        setClassifiedData(item);
-        setClassifiedVisible(false);
-      }} close={() => {
-        setClassifiedVisible(false);
-      }} data={classifiedData}/>}
+      {classifiedVisible && (
+        <Classified
+          choice={(item: any) => {
+            const categoryId = item.categoryId;
+            setFieldsValue({classifiedId: categoryId});
+            setClassifiedData(item);
+            setClassifiedVisible(false);
+          }}
+          close={() => {
+            setClassifiedVisible(false);
+          }}
+          data={classifiedData}
+        />
+      )}
     </PageHeaderWrapper>
   );
 };

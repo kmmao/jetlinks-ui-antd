@@ -128,9 +128,11 @@ const AlarmSave: React.FC<Props> = props => {
   }
 
   useEffect(() => {
-    // getDeviceList();
     if(deviceId !== ''){
       getInstanceDetail(deviceId);
+    }
+    if(productId !== ''){
+      getProductInfo(productId);
     }
     getProductList();
     if (props.data.alarmRule) {
@@ -157,7 +159,7 @@ const AlarmSave: React.FC<Props> = props => {
 
   return (
     <Modal
-      title={`${props.data?.id ? '编辑' : '新建'}告警`}
+      title={`${props.data?.id ? '编辑' : '新建'}告警1`}
       visible
       okText="确定"
       cancelText="取消"
@@ -183,6 +185,7 @@ const AlarmSave: React.FC<Props> = props => {
             <Col span={12}>
               <Form.Item key="alarmType" label="告警类型">
                 <Select placeholder="请选择" defaultValue={props.data.target}
+                  disabled={!!props.data.id}
                   onChange={(value: string) => {
                     setAlarmType(value);
                   }}
@@ -195,7 +198,7 @@ const AlarmSave: React.FC<Props> = props => {
             {
               alarmType === 'product' && <Col span={12}>
                 <Form.Item key="productId" label="产品" >
-                  <Select placeholder="请选择" defaultValue={productId} onChange={(value: string) => {
+                  <Select disabled={!!props.data.id} placeholder="请选择" defaultValue={productId} onChange={(value: string) => {
                     setProductId(value);
                     getProductInfo(value);
                   }}>
@@ -211,7 +214,7 @@ const AlarmSave: React.FC<Props> = props => {
             {
               alarmType === 'device' && <Col span={12}>
                 <Form.Item key="deviceId" label="设备">
-                  <Input addonAfter={<Icon onClick={() => {
+                  <Input disabled={!!props.data.id} addonAfter={<Icon onClick={() => {
                     setBindVisible(true);
                   }} type='gold' title="点击选择设备" />}
                     defaultValue={deviceId || ''}
@@ -277,7 +280,7 @@ const AlarmSave: React.FC<Props> = props => {
                   }}
                   trigger={item}
                   key={`trigger_${Math.round(Math.random() * 100000)}`}
-                  metaData={device?.metadata}
+                  metaData={alarmType === 'product' ? product?.metadata : device?.metadata}
                   position={index}
                   remove={(position: number) => {
                     trigger.splice(position, 1);

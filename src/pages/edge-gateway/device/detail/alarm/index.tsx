@@ -9,17 +9,19 @@ import { FormComponentProps } from 'antd/lib/form';
 import { PaginationConfig } from 'antd/lib/table';
 import Service from './service';
 import styles from '@/utils/table.less';
+import encodeQueryParam from '@/utils/encodeParam';
 
 interface Props extends FormComponentProps {
   device: any;
 }
 
 interface State {
-  data: any[];
+  data: any;
   saveAlarmData: Partial<alarm>;
   searchParam: any;
   alarmLogData: any;
   alarmDataList: any[];
+  searchAlarmParam: any;
 }
 
 const Alarm: React.FC<Props> = props => {
@@ -30,9 +32,13 @@ const Alarm: React.FC<Props> = props => {
   } = props;
 
   const initState: State = {
-    data: [],
+    data: {},
     saveAlarmData: {},
     searchParam: {
+      pageSize: 10,
+      sorts:[{name:"alarmTime",order: 'desc' }]
+    },
+    searchAlarmParam: {
       pageSize: 10
     },
     alarmLogData: {},
@@ -48,6 +54,7 @@ const Alarm: React.FC<Props> = props => {
   const [alarmLogId, setAlarmLogId] = useState<string>("");
   const [solveAlarmLog, setSolveAlarmLog] = useState<any>({});
   const [searchParam, setSearchParam] = useState(initState.searchParam);
+  const [searchAlarmParam, setSearchAlarmParam] = useState(initState.searchAlarmParam);
   const [alarmLogData, setAlarmLogData] = useState(initState.alarmLogData);
   const [alarmDataList, setAlarmDataList] = useState(initState.alarmDataList);
 
@@ -58,9 +65,10 @@ const Alarm: React.FC<Props> = props => {
   const getProductAlarms = () => {
     alarmDataList.splice(0, alarmDataList.length);
     setSpinning(false)
-    service.getAlarmsList(props.device.id, searchParam).subscribe(
+    service.getAlarmsList(props.device.id, {
+      paging: false
+    }).subscribe(
       (res) => {
-        setData(res.data);
         res.data.map((item: any) => {
           alarmDataList.push(item);
         });
@@ -69,10 +77,21 @@ const Alarm: React.FC<Props> = props => {
       () => setSpinning(false)
     )
   };
+  const getData = (params?: any) => {
+    setSearchAlarmParam(params)
+    service.getAlarmsList(props.device.id, params).subscribe(
+      (res) => {
+        setData(res);
+      },
+      () => setSpinning(false)
+    )
+  }
 
   useEffect(() => {
     setAlarmActiveKey('info');
     getProductAlarms();
+    getData(searchAlarmParam);
+    handleSearch(searchParam);
   }, []);
 
   const submitData = (data: any) => {
@@ -81,6 +100,7 @@ const Alarm: React.FC<Props> = props => {
         message.success('保存成功');
         setSaveVisible(false);
         getProductAlarms();
+        getData(searchAlarmParam);
       },
       () => setSpinning(false)
     )
@@ -91,7 +111,10 @@ const Alarm: React.FC<Props> = props => {
       () => {
         message.success('启动成功');
         getProductAlarms();
+        getData(searchAlarmParam);
+        setSpinning(false)
       },
+      () => { },
       () => setSpinning(false)
     )
   };
@@ -101,7 +124,10 @@ const Alarm: React.FC<Props> = props => {
       () => {
         message.success('停止成功');
         getProductAlarms();
+        getData(searchAlarmParam);
+        setSpinning(false)
       },
+      () => { },
       () => setSpinning(false)
     )
   };
@@ -111,7 +137,10 @@ const Alarm: React.FC<Props> = props => {
       () => {
         message.success('删除成功');
         getProductAlarms();
+        getData(searchAlarmParam);
+        setSpinning(false)
       },
+      () => { },
       () => setSpinning(false)
     )
   };
@@ -288,8 +317,7 @@ const Alarm: React.FC<Props> = props => {
 
   const onAlarmProduct = (value?: string) => {
     handleSearch({
-      pageIndex: searchParam.pageIndex,
-      pageSize: searchParam.pageSize,
+      pageSize: 10,
       where: `alarmId=${value}`
     });
   };
@@ -304,11 +332,21 @@ const Alarm: React.FC<Props> = props => {
     sorter: SorterResult<AlarmLog>,
   ) => {
     handleSearch({
+      ...searchParam,
+      pageIndex: Number(pagination.current) - 1,
+      pageSize: pagination.pageSize,
+      sorts:[{name:"alarmTime",order: sorter.order ? (sorter.order === 'descend' ? 'desc' : 'asc') : searchParam.sorts[0].order}]
+    });
+  };
+
+  const onTableAlarmChange = (
+    pagination: PaginationConfig,
+  ) => {
+    getData({
       pageIndex: Number(pagination.current) - 1,
       pageSize: pagination.pageSize,
       terms: searchParam.terms,
-      sorts: sorter,
-    });
+    })
   };
 
   return (
@@ -316,13 +354,10 @@ const Alarm: React.FC<Props> = props => {
       <Card>
         <Tabs tabPosition="top" type="card" activeKey={alarmActiveKey} onTabClick={(key: any) => {
           setAlarmActiveKey(key);
-          if(key='logList'){
-            setAlarmLogId("");
-            handleSearch({
-              pageIndex: searchParam.pageIndex,
-              pageSize: searchParam.pageSize
-          });
-          }
+          // if (key = 'logList') {
+          //   setAlarmLogId("");
+          //   handleSearch(searchParam);
+          // }
         }}>
           <Tabs.TabPane tab="告警设置" key="info">
             <Card title={
@@ -337,20 +372,26 @@ const Alarm: React.FC<Props> = props => {
                 新增告警
               </Button>
             } bordered={false}>
-              <Table rowKey="id" columns={columns} dataSource={data} pagination={false} />
+              <Table rowKey="id" columns={columns} dataSource={data.data}
+                onChange={onTableAlarmChange}
+                pagination={{
+                  current: data.pageIndex + 1,
+                  total: data.total,
+                  pageSize: data.pageSize
+                }} />
             </Card>
           </Tabs.TabPane>
           <Tabs.TabPane tab="告警记录" key="logList">
-            <div style={{display: 'flex', justifyContent: 'space-between'}}>
-              <Select placeholder="选择设告警设置" allowClear style={{ width: 300 }} value={alarmLogId}
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <Select placeholder="选择告警设置" allowClear style={{ width: 300 }} value={alarmLogId}
                 onChange={(value: string) => {
                   setAlarmLogId(value);
-                  if(value !== '' && value !== undefined){
+                  if (value !== '' && value !== undefined) {
                     onAlarmProduct(value);
-                  }else{
+                  } else {
                     handleSearch({
-                        pageIndex: searchParam.pageIndex,
-                        pageSize: searchParam.pageSize
+                      pageIndex: searchParam.pageIndex,
+                      pageSize: searchParam.pageSize
                     });
                   }
                 }}

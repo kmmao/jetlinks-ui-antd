@@ -29,6 +29,17 @@ ol {
   list-style: none;
 }
 
+:global{
+    .ant-pro-sider-menu{
+        max-height: calc(100vh - 64px);
+        overflow-y: auto;
+    }
+
+    .ant-pro-sider-menu::-webkit-scrollbar{
+        width: 0px;
+    }
+}
+
 @media (max-width: @screen-xs) {
   .ant-table {
     width: 100%;

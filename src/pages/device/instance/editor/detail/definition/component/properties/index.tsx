@@ -335,7 +335,7 @@ const PropertiesDefin: React.FC<Props> = props => {
           <div>
             <Form.Item label="密码长度">
               {getFieldDecorator('valueType.elementType.expands.maxLength', {
-                initialValue: initState.data.valueType?.elementType.expands.maxLength,
+                initialValue: initState.data.valueType?.elementType?.expands?.maxLength,
               })(<Input addonAfter="字节" />)}
             </Form.Item>
           </div>
@@ -667,7 +667,7 @@ const PropertiesDefin: React.FC<Props> = props => {
           <div>
             <Form.Item label="密码长度">
               {getFieldDecorator('valueType.expands.maxLength', {
-                initialValue: initState.data.valueType?.expands.maxLength,
+                initialValue: initState.data.valueType?.expands?.maxLength,
               })(<Input addonAfter="字节" />)}
             </Form.Item>
           </div>
@@ -741,7 +741,7 @@ const PropertiesDefin: React.FC<Props> = props => {
   return (
     <div>
       <Drawer
-        title="编辑属性"
+        title={!initState.data.id ? `添加属性` : `编辑属性`}
         placement="right"
         closable={false}
         onClose={() => props.close()}
@@ -815,7 +815,7 @@ const PropertiesDefin: React.FC<Props> = props => {
             <Form.Item label="是否只读">
               {getFieldDecorator('expands.readOnly', {
                 rules: [{ required: true }],
-                initialValue: initState.data.expands?.readOnly.toString(),
+                initialValue: initState.data.expands?.readOnly?.toString?.(),
               })(
                 <Radio.Group>
                   <Radio value="true">是</Radio>

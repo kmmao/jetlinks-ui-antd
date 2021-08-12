@@ -9,7 +9,7 @@ import { UploadProps } from "antd/lib/upload";
 import { DefaultSettings } from "../../../../config/defaultSettings";
 import styles from './index.less';
 import { getAccessToken } from "@/utils/authority";
-
+import logo from '../../../assets/icon.png';
 
 interface Props extends FormComponentProps {
     dispatch: Dispatch;
@@ -25,8 +25,18 @@ const Config: React.FC<Props> = props => {
         dispatch({
             type: 'settings/settingData',
             payload: { ...settings, ...getFieldsValue(), titleIcon },
-            callback:()=>{message.success('保存成功')}
+            // callback:()=>{message.success('保存成功')}
+            callback:(response:any)=>{
+                if(response.status === 200){
+                    message.success('更新成功');
+                }else{
+                    message.success('更新失败');
+                }
+            }
+            
         })
+        
+        
     }
 
 
@@ -95,14 +105,14 @@ const Config: React.FC<Props> = props => {
                                             </Select>
                                         )}
                                     </Form.Item>
-                                    <Form.Item
+                                    {/* <Form.Item
                                         label="系统简介"
                                     >
                                         <Input.TextArea
                                             placeholder="系统简介"
                                             rows={4}
                                         />
-                                    </Form.Item>
+                                    </Form.Item> */}
                                     <Form.Item>
                                         <Button htmlType="submit" type="primary" onClick={updateSetting}>
                                             更新基本信息
@@ -116,7 +126,7 @@ const Config: React.FC<Props> = props => {
                                         系统LOGO
                                 </div>
                                     <div className={styles.avatar}>
-                                        <img src={titleIcon || settings.titleIcon} alt="avatar" />
+                                       <img src={titleIcon||logo} alt='default'/>
                                     </div>
                                     <Upload {...uploadProps} showUploadList={false}>
                                         <div className={styles.button_view}>

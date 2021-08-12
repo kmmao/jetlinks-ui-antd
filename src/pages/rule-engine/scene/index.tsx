@@ -151,15 +151,13 @@ const RuleInstanceList: React.FC<Props> = props => {
             rowKey="id"
             loading={props.loading}
             grid={{ gutter: 24, xl: 4, lg: 3, md: 3, sm: 2, xs: 1 }}
-            dataSource={(sceneList || {}).data}
-            on
+            dataSource={sceneList?.data || []}
             pagination={{
               current: sceneList?.pageIndex + 1,
               total: sceneList?.total,
               pageSize: sceneList?.pageSize,
               showQuickJumper: true,
               showSizeChanger: true,
-              hideOnSinglePage: true,
               pageSizeOptions: ['8', '16', '40', '80'],
               style: { marginTop: -20 },
               onChange,
@@ -174,15 +172,15 @@ const RuleInstanceList: React.FC<Props> = props => {
                   <List.Item key={item.id}>
                     <Card hoverable bodyStyle={{ paddingBottom: 20 }}
                       actions={[
-                        <Tooltip key="seeProduct" title="查看">
-                          <Icon
-                            type="eye"
-                            onClick={() => {
-                              setDetailVisible(true);
-                              setDetailData(item);
-                            }}
-                          />
-                        </Tooltip>,
+                        // <Tooltip key="seeProduct" title="查看">
+                        //   <Icon
+                        //     type="eye"
+                        //     onClick={() => {
+                        //       setDetailVisible(true);
+                        //       setDetailData(item);
+                        //     }}
+                        //   />
+                        // </Tooltip>,
                         <Tooltip key="update" title='编辑'>
                           <Icon
                             type="edit"

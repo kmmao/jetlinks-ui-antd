@@ -365,7 +365,7 @@ const EventDefin: React.FC<Props> = props => {
           <div>
             <Form.Item label="密码长度">
               {getFieldDecorator('valueType.elementType.expands.maxLength', {
-                initialValue: initState.data.valueType?.elementType.expands.maxLength,
+                initialValue: initState.data.valueType?.elementType?.expands?.maxLength,
               })(<Input addonAfter="字节" />)}
             </Form.Item>
           </div>
@@ -688,7 +688,7 @@ const EventDefin: React.FC<Props> = props => {
           <div>
             <Form.Item label="密码长度">
               {getFieldDecorator('valueType.expands.maxLength', {
-                initialValue: initState.data.valueType?.expands.maxLength,
+                initialValue: initState.data.valueType?.expands?.maxLength,
               })(<Input addonAfter="字节" />)}
             </Form.Item>
           </div>
@@ -761,7 +761,7 @@ const EventDefin: React.FC<Props> = props => {
   }
   return (
     <Drawer
-      title="编辑事件定义"
+      title={!initState.data.id ? `添加事件定义` : `编辑事件定义`}
       placement="right"
       closable={false}
       onClose={() => props.close()}

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, Fragment } from 'react';
-import { Modal, Form, Input, Select, Card, Row, Col, Icon, Divider, Tooltip } from 'antd';
+import { Modal, Form, Input, Select, Card, Row, Col, Icon, Divider, Tooltip, Radio } from 'antd';
 import { FormComponentProps } from 'antd/es/form';
 import apis from '@/services';
 import encodeQueryParam from '@/utils/encodeParam';
@@ -141,6 +141,11 @@ const Save: React.FC<Props> = props => {
                 initialValue: props.data.configuration?.topics,
               })(<Input.TextArea rows={3} placeholder="从MQTT服务订阅Topic.多个使用,分割" />)}
             </Form.Item>
+            <Form.Item label="Qos">
+              {getFieldDecorator('configuration.qos', {
+                initialValue: props.data.configuration?.qos||'0',
+              })(<Radio.Group options={['0','1','2']} />)}
+            </Form.Item>
           </div>
         );
       case 'UDP':
@@ -171,12 +176,19 @@ const Save: React.FC<Props> = props => {
               <Card>
                 {(routesData.length > 0 ? routesData : [{ id: '1001', url: '', protocol: '' }]).map((i, index) => {
                   return (
-                    <Row key={i.id} style={{ marginBottom: 5 }}>
+                    <Row key={index} style={{ marginBottom: 5 }}>
                       <Col span={9}>
                         <Input
                           value={i.url}
                           onChange={e => {
-                            routesData[index].url = e.target.value;
+                            if(routesData[index]?.url){
+                              routesData[index].url = e.target.value;
+                            }else{
+                              routesData[index] = {
+                                ...routesData[index],
+                                url: e.target.value
+                              }
+                            }
                             setRoutesData([...routesData]);
                           }}
                           placeholder="/**"
@@ -189,7 +201,14 @@ const Save: React.FC<Props> = props => {
                         <Select
                           value={routesData[index]?.protocol}
                           onChange={(e: string) => {
-                            routesData[index].protocol = e;
+                            if(routesData[index]?.protocol){
+                              routesData[index].protocol = e;
+                            }else{
+                              routesData[index] = {
+                                ...routesData[index],
+                                protocol: e
+                              }
+                            }
                             setRoutesData([...routesData]);
                           }}
                         >

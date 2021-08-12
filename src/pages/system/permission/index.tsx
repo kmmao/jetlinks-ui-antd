@@ -11,6 +11,7 @@ import SearchForm from '@/components/SearchForm';
 import ProTable from './component/ProTable';
 import apis from '@/services';
 import { downloadObject } from '@/utils/utils';
+import { getAccessToken } from '@/utils/authority';
 // import SettingAutz from "../setting-autz";
 interface Props {
   permission: any;
@@ -66,9 +67,9 @@ const PermissionList: React.FC<Props> = props => {
 
   const saveOrUpdate = (permission: PermissionItem) => {
     setSaveLoading(true);
-    if(!!currentItem.id){
+    if (!!currentItem.id) {
       dispatch({
-        type: 'permission/updata',
+        type: 'permission/update',
         payload: encodeQueryParam(permission),
         callback: (response: any) => {
           if (response.status === 200) {
@@ -80,7 +81,7 @@ const PermissionList: React.FC<Props> = props => {
           setSaveLoading(false);
         },
       });
-    }else{
+    } else {
       dispatch({
         type: 'permission/insert',
         payload: encodeQueryParam(permission),
@@ -99,9 +100,9 @@ const PermissionList: React.FC<Props> = props => {
   const handleDelete = (params: any) => {
     dispatch({
       type: 'permission/remove',
-      payload: params.id,
-      callback: (res) => {
-        if(res.status === 200){
+      payload: encodeURIComponent(params.id),
+      callback: (res: any) => {
+        if (res.status === 200) {
           message.success('删除成功');
           handleSearch(searchParam);
         }
@@ -124,12 +125,12 @@ const PermissionList: React.FC<Props> = props => {
       filters: [
         {
           text: '启用',
-          value: 1
+          value: 1,
         },
         {
           text: '禁用',
           value: 0,
-        }
+        },
       ],
       render: (text: any) => (text === 1 ? '启用' : '禁用'),
     },
@@ -163,15 +164,15 @@ const PermissionList: React.FC<Props> = props => {
               }}
               formItems={[
                 {
-                  label: "ID",
-                  key: "id$LIKE",
-                  type: 'string'
+                  label: 'ID',
+                  key: 'id$LIKE',
+                  type: 'string',
                 },
                 {
-                  label: "名称",
-                  key: "name$LIKE",
-                  type: 'string'
-                }
+                  label: '名称',
+                  key: 'name$LIKE',
+                  type: 'string',
+                },
               ]}
             />
           </div>
@@ -188,43 +189,49 @@ const PermissionList: React.FC<Props> = props => {
             </Button>
             <Button
               onClick={() => {
-                apis.permission.listNoPaging({}).then((resp) => {
+                apis.permission.listNoPaging({}).then(resp => {
                   if (resp.status === 200) {
                     downloadObject(resp.result, '权限数据');
                     message.success('导出成功');
                   } else {
                     message.error('导出错误');
                   }
-                })
+                });
               }}
             >
               <Icon type="export" /> 导出
             </Button>
             <Upload
-              showUploadList={false} accept='.json'
-              beforeUpload={(file) => {
+              action="/jetlinks/file/static"
+              headers={{
+                'X-Access-Token': getAccessToken(),
+              }}
+              showUploadList={false}
+              accept=".json"
+              beforeUpload={file => {
                 setLoading(true);
                 const reader = new FileReader();
                 reader.readAsText(file);
                 reader.onload = (result: any) => {
                   try {
                     let data = JSON.parse(result.target.result);
-                    apis.permission.add(data).then(resp => {
+                    apis.permission.importData(data).then(resp => {
                       if (resp.status === 200) {
                         message.success('导入成功');
                       }
                       setLoading(false);
-                    })
+                    });
                   } catch (error) {
                     message.error('导入失败，请重试！');
                     setLoading(false);
                   }
-                }
+                };
               }}
             >
               <Button>
-                <Icon type="upload" />导入
-            </Button>
+                <Icon type="upload" />
+                导入
+              </Button>
             </Upload>
           </div>
           <div className={styles.StandardTable}>

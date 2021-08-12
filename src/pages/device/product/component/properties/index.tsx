@@ -75,7 +75,7 @@ const PropertiesDefin: React.FC<Props> = props => {
   const [loadConfig, setLoadConfig] = useState<boolean>(false);
   const [aType, setAType] = useState<string>(initState.aType);
 
-  const [isVirtual, setIsVirtual] = useState(initState.isVirtual);
+  const [isVirtual, setIsVirtual] = useState(initState.data.expands?.source === 'rule' ? true : false);
   const [aggTypeList, setAggTypeList] = useState(initState.aggTypeList);
   const [isUseWindow, setIsUseWindow] = useState(initState.isUseWindow);
   const [isTimeWindow, setIsTimeWindow] = useState(initState.isTimeWindow);
@@ -133,6 +133,8 @@ const PropertiesDefin: React.FC<Props> = props => {
         if (isUseWindow) {
           data.expands.virtualRule.windowType = isTimeWindow ? 'time' : 'num';
           data.windows = undefined;
+          data.expands.virtualRule.script = script;
+        }else{
           data.expands.virtualRule.script = script;
         }
       }
@@ -384,7 +386,7 @@ const PropertiesDefin: React.FC<Props> = props => {
           <div>
             <Form.Item label="密码长度">
               {getFieldDecorator('valueType.elementType.expands.maxLength', {
-                initialValue: initState.data.valueType?.elementType.expands.maxLength,
+                initialValue: initState.data.valueType?.elementType?.expands?.maxLength,
               })(<Input addonAfter="字节" />)}
             </Form.Item>
           </div>
@@ -716,7 +718,7 @@ const PropertiesDefin: React.FC<Props> = props => {
           <div>
             <Form.Item label="密码长度">
               {getFieldDecorator('valueType.expands.maxLength', {
-                initialValue: initState.data.valueType?.expands.maxLength,
+                initialValue: initState.data.valueType?.expands?.maxLength,
               })(<Input addonAfter="字节" />)}
             </Form.Item>
           </div>
@@ -808,7 +810,7 @@ const PropertiesDefin: React.FC<Props> = props => {
   return (
     <div>
       <Drawer
-        title="编辑属性"
+        title={!initState.data.id ? `添加属性` : `编辑属性`}
         placement="right"
         closable={false}
         onClose={() => props.close()}
@@ -881,7 +883,7 @@ const PropertiesDefin: React.FC<Props> = props => {
             <Form.Item label="是否只读">
               {getFieldDecorator('expands.readOnly', {
                 rules: [{ required: true }],
-                initialValue: initState.data.expands?.readOnly?.toString(),
+                initialValue: initState.data.expands?.readOnly?.toString?.(),
               })(
                 <Radio.Group>
                   <Radio value="true">是</Radio>
@@ -889,10 +891,33 @@ const PropertiesDefin: React.FC<Props> = props => {
                 </Radio.Group>,
               )}
             </Form.Item>
+
+            {/* 属性来源 */}
+            <Form.Item label="属性来源">
+              {getFieldDecorator('expands.source', {
+                rules: [{ required: true, message: '请选择' }],
+                initialValue: initState.data.expands?.source,
+              })(
+                <Select
+                  placeholder="请选择"
+                  onChange={(value: string) => {
+                    if(value === 'rule'){
+                      setIsVirtual(true);
+                    }else{
+                      setIsVirtual(false);
+                    }
+                  }}
+                >
+                  <Select.Option value="device">设备</Select.Option>
+                  <Select.Option value="manual">手动</Select.Option>
+                  <Select.Option value="rule">规则</Select.Option>
+                </Select>
+              )}
+            </Form.Item>
             {/* 虚拟属性 */}
             {version === 'pro' && (
               <>
-                <Form.Item label="虚拟属性">
+                {/* <Form.Item label="虚拟属性">
                   {getFieldDecorator('expands.virtual', {
                     rules: [{ required: true }],
                     initialValue: isVirtual,
@@ -905,19 +930,19 @@ const PropertiesDefin: React.FC<Props> = props => {
                       <Radio value={false}>否</Radio>
                     </Radio.Group>,
                   )}
-                </Form.Item>
+                </Form.Item> */}
                 {isVirtual && (
                   <>
                     <Form.Item wrapperCol={{ span: 24 }}>
                       {getFieldDecorator('expands.virtualRule.script', {
                         // rules: [{ required: true }],
-                        initialValue: initState.data.expands?.virtualRule.script
+                        initialValue: initState.data.expands?.virtualRule?.script
                       })(
                         <VirtualEditorComponent scriptValue={(value: string) => {
                           setScript(value);
-                        }} metaDataList={props.dataList} data={props.data} formData={getFieldsValue()}/>
+                        }} metaDataList={props.dataList} data={props.data} formData={getFieldsValue()} />
                       )}
-                    </Form.Item> 
+                    </Form.Item>
                     <Form.Item label="">
                       {getFieldDecorator('windows', {
                         initialValue: windows,

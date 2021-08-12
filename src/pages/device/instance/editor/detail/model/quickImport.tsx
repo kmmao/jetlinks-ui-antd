@@ -16,6 +16,7 @@ import 'ace-builds/src-noconflict/theme-eclipse';
 import apis from "@/services";
 import encodeQueryParam from "@/utils/encodeParam";
 import {DeviceInstance} from '@/pages/device/instance/data';
+import { getAccessToken } from '@/utils/authority';
 
 interface Props extends FormComponentProps {
   close: Function;
@@ -42,7 +43,7 @@ const QuickImport: React.FC<Props> = props => {
     form,
   } = props;
 
-  const [deviceList, setDeviceList] = useState(initState.deviceList);
+  // const [deviceList, setDeviceList] = useState(initState.deviceList);
   const [metaData, setMetaData] = useState<string>();
   const [operateType, setOperateType] = useState(initState.operateType);
   const [modelFormat, setModelFormat] = useState(initState.modelFormat);
@@ -50,13 +51,13 @@ const QuickImport: React.FC<Props> = props => {
 
   useEffect(() => {
     // 获取下拉框数据
-    apis.deviceInstance
-      .queryNoPagin(encodeQueryParam({ paging: false }))
-      .then(response => {
-        setDeviceList(response.result);
-      })
-      .catch(() => {
-      });
+    // apis.deviceInstance
+    //   .queryNoPagin(encodeQueryParam({ paging: false }))
+    //   .then(response => {
+    //     setDeviceList(response.result);
+    //   })
+    //   .catch(() => {
+    //   });
     apis.deviceProdcut
       .getModelFormat().then(res => {
         setModelFormat(res.result)
@@ -67,19 +68,19 @@ const QuickImport: React.FC<Props> = props => {
 
   const submitData = () => {
     let data:string = '';
-    if (operateType === 'copy') {
-      form.validateFields((err, fileValue) => {
-        if (err) return;
-        let device: Partial<DeviceInstance>= {};
-        if(fileValue.deviceId !== ''){
-          apis.deviceInstance.info(fileValue.deviceId)
-          .then((response: any) => {
-            device = response.result;
-            props.update(device.metadata || '');
-          })
-        }
-      });
-    } else {
+    // if (operateType === 'copy') {
+    //   form.validateFields((err, fileValue) => {
+    //     if (err) return;
+    //     let device: Partial<DeviceInstance>= {};
+    //     if(fileValue.deviceId !== ''){
+    //       apis.deviceInstance.info(fileValue.deviceId)
+    //       .then((response: any) => {
+    //         device = response.result;
+    //         props.update(device?.metadata || '');
+    //       })
+    //     }
+    //   });
+    // } else {
       if(modelId !== ''){
         apis.deviceProdcut.getModel(modelId, metaData).then(res => {
           if(res.status === 200){
@@ -91,7 +92,7 @@ const QuickImport: React.FC<Props> = props => {
         data = metaData;
         props.update(data);
       }
-    }
+    // }
   };
 
   return (
@@ -119,7 +120,7 @@ const QuickImport: React.FC<Props> = props => {
       <Tabs onChange={(key: string) => {
         setOperateType(key);
       }} type="card">
-        <Tabs.TabPane tab="拷贝设备" key="copy">
+        {/* <Tabs.TabPane tab="拷贝设备" key="copy">
           <Form labelCol={{ span: 4 }} wrapperCol={{ span: 20 }}>
             <Form.Item key="deviceId" label="选择设备">
               {getFieldDecorator('deviceId', {
@@ -140,7 +141,7 @@ const QuickImport: React.FC<Props> = props => {
               </Select>)}
             </Form.Item>
           </Form>
-        </Tabs.TabPane>
+        </Tabs.TabPane> */}
         <Tabs.TabPane tab={
           <>
             导入物模型&nbsp;&nbsp;
@@ -160,6 +161,10 @@ const QuickImport: React.FC<Props> = props => {
           <Row gutter={24}>
             <Col span={6}>
               <Upload
+              action="/jetlinks/file/static"
+              headers={{
+                'X-Access-Token': getAccessToken(),
+              }}
                 showUploadList={false} accept='.json'
                 beforeUpload={(file) => {
                   const reader = new FileReader();

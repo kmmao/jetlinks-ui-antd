@@ -27,7 +27,7 @@ const OrgChart = () => {
   const handleSearch = () => {
     apis.org.list(encodeQueryParam({ paging: false, terms: { typeId: 'org' } })).then(resp => {
       const data = {
-        id: '',
+        id: null,
         name: '机构管理',
         title: '组织架构',
         children: resp.result,
@@ -45,7 +45,9 @@ const OrgChart = () => {
       apis.org
         .saveOrUpdate(data)
         .then(res => {
-          message.success('保存成功');
+          if (res.status === 200) {
+            message.success('保存成功');
+          }
         })
         .then(() => {
           handleSearch();
@@ -54,7 +56,9 @@ const OrgChart = () => {
       apis.org
         .add(data)
         .then(res => {
-          message.success('保存成功');
+          if (res.status === 200) {
+            message.success('保存成功');
+          }
         })
         .then(() => {
           handleSearch();
@@ -75,7 +79,7 @@ const OrgChart = () => {
       });
   };
   const menu = (nodeData: any) => {
-    return nodeData.id === '' ? (
+    return nodeData.id === null ? (
       <Menu>
         <Menu.Item>
           <a
@@ -83,7 +87,7 @@ const OrgChart = () => {
             rel="noopener noreferrer"
             onClick={() => {
               setCurrent({});
-              setParentId(nodeData.id);
+              setParentId(nodeData);
               setEdit(true);
             }}
           >
@@ -112,7 +116,7 @@ const OrgChart = () => {
             rel="noopener noreferrer"
             onClick={() => {
               setCurrent({});
-              setParentId(nodeData.id);
+              setParentId(nodeData);
               setEdit(true);
             }}
           >

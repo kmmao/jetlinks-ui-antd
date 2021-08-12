@@ -42,7 +42,7 @@ export const routes = [
             name: '系统设置',
             iconfont: 'icon-shezhi',
             icon: 'setting',
-            tenant: ['admin'],
+            tenant: ['admin', 'member'],
             authority: [
               'user',
               'permission',
@@ -62,6 +62,7 @@ export const routes = [
                 iconfont: 'icon-yonghuguanli',
                 icon: 'user',
                 authority: ['user', 'admin'],
+                tenant: ['admin', 'member'],
                 component: './system/users',
               },
               {
@@ -94,6 +95,7 @@ export const routes = [
                 name: '机构管理',
                 icon: 'apartment',
                 authority: ['organization', 'admin'],
+                tenant: ['admin', 'member'],
                 component: './system/org-chart',
               },
               {
@@ -131,7 +133,14 @@ export const routes = [
                 version: 'pro',
                 component: './system/tenant/detail',
               },
-             
+              {
+                path:'/system/datasource',
+                name:'数据源管理',
+                icon:'database',
+                authority:['datasource-config','admin'],
+                version:'pro',
+                component:'./system/datasource'
+              }
             ],
           },
           {
@@ -290,6 +299,14 @@ export const routes = [
                 authority: ['device-alarm', 'admin'],
                 component: './device/alarmlog',
               },
+              {
+                path:'/device/command',
+                name:'指令下发',
+                icon:'arrow-down',
+                authority:['device-msg-task','admin'],
+                version: 'pro',
+                component:'./device/command'
+              }
             ],
           },
           {
@@ -345,7 +362,7 @@ export const routes = [
                 iconfont: 'icon-fileppt',
                 authority: ['opc-client', 'admin'],
                 component: './network/opc-ua',
-              }
+              },
             ],
           },
           {

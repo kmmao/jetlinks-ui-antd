@@ -45,7 +45,7 @@ const Log: React.FC<Props> = props => {
       pageIndex: 0,
       pageSize: 10,
       sorts: {
-        field: 'createTime',
+        field: 'timestamp',
         order: 'desc',
       },
     });
@@ -107,11 +107,11 @@ const Log: React.FC<Props> = props => {
   const onSearch = () => {
     // eslint-disable-next-line no-shadow
     const params = form.getFieldsValue();
-    if (params.createTime$BTW) {
-      const formatDate = params.createTime$BTW.map((e: Moment) =>
+    if (params.timestamp$BTW) {
+      const formatDate = params.timestamp$BTW.map((e: Moment) =>
         moment(e).format('YYYY-MM-DD HH:mm:ss'),
       );
-      params.createTime$BTW = formatDate.join(',');
+      params.timestamp$BTW = formatDate.join(',');
     }
     if (params.type$IN) {
       params.type$IN = params.type$IN.join(',');
@@ -123,7 +123,7 @@ const Log: React.FC<Props> = props => {
       pageIndex: 0,
       terms: { ...params, deviceId: props.deviceId },
       sorts: {
-        field: 'createTime',
+        field: 'timestamp',
         order: 'desc',
       },
     });
@@ -138,7 +138,7 @@ const Log: React.FC<Props> = props => {
         deviceId: props.deviceId,
       },
       sorts: {
-        field: 'createTime',
+        field: 'timestamp',
         order: 'desc',
       },
     });
@@ -149,7 +149,7 @@ const Log: React.FC<Props> = props => {
       pageSize: pagination.pageSize,
       terms: params,
       sorts: {
-        field: 'createTime',
+        field: 'timestamp',
         order: 'desc',
       },
     });
@@ -176,7 +176,7 @@ const Log: React.FC<Props> = props => {
               </Col>
               <Col md={10} sm={24}>
                 <Form.Item label="日期">
-                  {getFieldDecorator('createTime$BTW')(
+                  {getFieldDecorator('timestamp$BTW')(
                     <DatePicker.RangePicker
                       showTime={{ format: 'HH:mm' }}
                       format="YYYY-MM-DD HH:mm"

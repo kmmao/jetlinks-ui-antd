@@ -20,7 +20,7 @@ const Play = (props: Props) => {
     const [playRight, setPlayRight] = useState<boolean>(true);
     const [playIn, setPlayIn] = useState<boolean>(true);
     const [playOut, setPlayOut] = useState<boolean>(true);
-    const playerBtnGroup = [{ name: 'FLV', value: "flv" }, { name: 'RTSP', value: "rtsp" }, { name: 'RTMP', value: "rtmp" }, { name: 'MP4', value: "mp4" }, { name: 'HLS', value: "hls" }, { name: 'RTC', value: "rtc" }];
+    const playerBtnGroup = [{ name: 'MP4', value: "mp4" },{ name: 'FLV', value: "flv" }, { name: 'HLS', value: "hls" }, { name: 'RTC', value: "rtc" }];
     const [urlItem, setUrlItem] = useState({});
     const [url, setUrl] = useState('');
     const [bloading, setBloading] = useState(true);
@@ -28,30 +28,30 @@ const Play = (props: Props) => {
     useEffect(() => {
         setPlaying(true);
         service.getPlay(props.data.deviceId, props.data.channelId).subscribe(res => {
-            setUrl(res['flv'])
-            setProtocol('flv')
+            setUrl(res['mp4']);
+            setProtocol('mp4');
             setBloading(false);
             setUrlItem(res);
         });
     }, []);
 
     const play = (value: string) => {
-        setUrl(urlItem[value])
+        setUrl(urlItem[value]);
         setProtocol(value)
-    }
+    };
 
     const controlStart = (direct: string) => {
         if (playing) {
             service.getControlStart(props.data.deviceId, props.data.channelId, direct, 90).subscribe(() => {
             })
         }
-    }
+    };
     const controlStop = () => {
         if (playing) {
             service.getControlStop(props.data.deviceId, props.data.channelId).subscribe(() => {
             })
-        }  
-    }
+        }
+    };
 
     //刷新
     const refresh = () => {
@@ -66,7 +66,7 @@ const Play = (props: Props) => {
                 setUrlItem(res);
             });
         })
-    }
+    };
 
     return (
         <Modal
@@ -85,7 +85,7 @@ const Play = (props: Props) => {
                         <div className={styles.video_lose} onClick={() => {refresh()}}>刷新</div>
                     </div>
                     <div className={styles.bottom}>
-                        <Radio.Group defaultValue="flv" buttonStyle="solid" onChange={(e) => {
+                        <Radio.Group defaultValue="mp4" buttonStyle="solid" onChange={(e) => {
                             play(e.target.value)
                         }}>
                             {playerBtnGroup.length > 0 && playerBtnGroup.map((item, index) => (

@@ -10,9 +10,10 @@ export async function list(params?: any) {
 }
 
 export async function listNoPaging(params?: any) {
-  return request(`/jetlinks/permission/_query/no-paging?paging=false`, {
+  // return request(`/jetlinks/permission/_query/no-paging?paging=false`, {
+  return request(`/jetlinks/permission/_query/for-grant`, {
     method: 'GET',
-    params
+    params,
   });
 }
 
@@ -29,6 +30,13 @@ export async function remove(id: string) {
 }
 
 export async function save(params: PermissionItem) {
+  return request(`/jetlinks/permission`, {
+    method: 'PATCH',
+    data: params,
+  });
+}
+
+export async function importData(params: PermissionItem) {
   return request(`/jetlinks/permission`, {
     method: 'PATCH',
     data: params,

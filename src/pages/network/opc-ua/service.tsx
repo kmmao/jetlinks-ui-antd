@@ -21,7 +21,7 @@ export async function save(params: any) {
     });
 }
 
-export async function updata(params: any) {
+export async function update(params: any) {
     return request(`/jetlinks/opc/client/${params.id}`, {
         method: 'PUT',
         data: params,
@@ -72,8 +72,8 @@ export async function removeBind(id: string) {
     });
 }
 //批量解绑
-export async function removeManyBind(params: any) {
-    return request(`/jetlinks/opc/device-bind/batch/_delete`, {
+export async function removeManyBind(opcUaId: string, params: any) {
+    return request(`/jetlinks/opc/device-bind/batch/${opcUaId}/_delete`, {
         method: 'POST',
         data: params
     });
@@ -128,5 +128,27 @@ export async function bindManyDevice(params: any) {
     return request(`/jetlinks/opc/device-bind/batch/_create`, {
         method: 'POST',
         data: params
+    });
+}
+//启动点位
+export async function startPoint(deviceId: string, params: any) {
+    return request(`/jetlinks/opc/device-bind/points/${deviceId}/_start`, {
+        method: 'POST',
+        data: params
+    });
+}
+
+//停止点位
+export async function stopPoint(deviceId: string, params: any) {
+    return request(`/jetlinks/opc/device-bind/points/${deviceId}/_stop`, {
+        method: 'POST',
+        data: params
+    });
+}
+//删除点位
+export async function delPoint(deviceId: string, pointIds: string[]) {
+    return request(`/jetlinks/opc/device-bind/batch/${deviceId}/point/_delete`, {
+        method: 'POST',
+        data: pointIds
     });
 }

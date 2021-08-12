@@ -114,7 +114,7 @@ const Save: React.FC<Props> = props => {
             trigger: '', cron: '',
             device: {
               shakeLimit: {enabled: false},
-              filters: [{_id: Math.round(Math.random() * 100000), key: '', value: '', operator: ''}],
+              filters: [{_id: Math.round(Math.random() * 100000)}],
               productId: '',
               deviceId: '',
               type: '',
@@ -134,7 +134,7 @@ const Save: React.FC<Props> = props => {
 
   return (
     <Modal
-      title={data.id ? '编辑场景联动' : '新增场景联动'}
+      title={props.data.id ? '编辑场景联动' : '新增场景联动'}
       visible
       okText="确定"
       cancelText="取消"
@@ -153,7 +153,7 @@ const Save: React.FC<Props> = props => {
               <Form.Item key="id" label="场景联动ID">
                 <Input placeholder="输入场景联动ID"
                        defaultValue={props.data.id}
-                       readOnly={!!data?.id}
+                       readOnly={!!props.data.id}
                        onBlur={event => {
                          setData({...data, id: event.target.value})
                        }}/>
